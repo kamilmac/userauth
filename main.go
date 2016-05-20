@@ -53,7 +53,6 @@ type AuthRes struct {
     Data            AuthData    `json:"data"`
 }
 
-
 func (app *App) handleLogin(w http.ResponseWriter, r *http.Request) {
     var (
         res LoginRes
