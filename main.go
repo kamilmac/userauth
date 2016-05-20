@@ -144,11 +144,11 @@ func init() {
 func main() {
     app := App{}
     app.userbase = users.Init()
-    app.userbase.SetSigningKey("ialjfslkjaf9u909fj")
-    app.userbase.Register("admin", "limak")
+    app.userbase.SetSigningKey(signingKey)
+    app.userbase.Register(adminUser, adminPass)
     // http.HandleFunc("/register", handleRegister)
-    http.HandleFunc("/login", app.handleLogin)
-    http.HandleFunc("/auth", app.handleAuth)
+    http.HandleFunc("/api/v1/login", app.handleLogin)
+    http.HandleFunc("/api/v1/auth", app.handleAuth)
     log.Println("Running on port:", port)
     err := http.ListenAndServe(fmt.Sprintf(":%v", port), nil)
     if err != nil {
