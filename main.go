@@ -2,27 +2,28 @@ package main
 
 import (
     "fmt"
-    "time"
     "net/http"
     "encoding/json"
     "log"
-    "errors"
     "flag"
-    
-    "github.com/dgrijalva/jwt-go"
+    "github.com/kamilmac/userauth/users"
+    "os"
 )
+
+var (
+    port            string
+    signingKey      string
+    adminUser       string
+    adminPass       string
+)
+
+type App struct {
+    userbase        *users.Users
+}
 
 type Response struct {
     Status          string      `json:"status"`
     Message         string      `json:"message"`
-}
-
-type User struct {
-    ID              string
-    Username        string
-    Email           string
-    Password        string
-    Token           string
 }
 
 type LoginReq struct {
@@ -44,7 +45,7 @@ type AuthReq struct {
 }
 
 type AuthData struct {
-    UserID          string      `json:"userid"`
+    Token           string      `json:"token"`
 }
 
 type AuthRes struct {
@@ -52,19 +53,8 @@ type AuthRes struct {
     Data            AuthData    `json:"data"`
 }
 
-const (
-    signingKey = "thisisnotrandomtext"
-)
 
-var (
-    port int
-    me = User{"149sdfinw9fas0315jfs9", "kamil", "kamil@gmail.com", "limak", ""}
-    Users = map[string]User {
-        me.ID: me,
-    }
-)
-
-func handleLogin(w http.ResponseWriter, r *http.Request) {
+func (app *App) handleLogin(w http.ResponseWriter, r *http.Request) {
     var (
         res LoginRes
         req LoginReq
@@ -75,23 +65,19 @@ func handleLogin(w http.ResponseWriter, r *http.Request) {
         res.Status = "error"
         res.Message = "Json req decoding error"
     } else {
-        if user, err := getUserByName(req.Username); err != nil { 
+        if ok, newToken := app.userbase.Login(req.Username, req.Password); !ok {
             res.Status = "error"
-            res.Message = fmt.Sprintf("%v", err)
-        } else if user.Password != req.Password {
-            res.Status = "error"
-            res.Message = "Wrong password"
+            res.Message = "Login failed"
         } else {
-            user.Token = createToken(user)
             res.Status = "success"
-            res.Data.Token = user.Token
+            res.Data.Token = newToken
         }
     }
     json, _ := json.Marshal(res)
     w.Write(json)
 }
 
-func handleAuth(w http.ResponseWriter, r *http.Request) {
+func (app *App) handleAuth(w http.ResponseWriter, r *http.Request) {
     var (
         res AuthRes
         req AuthReq
@@ -102,51 +88,68 @@ func handleAuth(w http.ResponseWriter, r *http.Request) {
         res.Status = "error"
         res.Message = "Json req decoding error"
     } else {
-        token, err := jwt.Parse(req.Token, func(token *jwt.Token) (interface{}, error) {
-            return []byte(signingKey), nil
-        })
-        if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+        if ok, newToken := app.userbase.Auth(req.Token); !ok {
             res.Status = "error"
-            res.Message = "Unexpected signing method"
-        } else if err != nil || !token.Valid {
-            res.Status = "error"
-            res.Message = "Token invalid or expired"
+            res.Message = "Login failed"
         } else {
-            userID, _ := token.Claims["userid"]
             res.Status = "success"
-            res.Data.UserID = fmt.Sprintf("%v", userID)
+            res.Data.Token = newToken
         }
     }
     json, _ := json.Marshal(res)
     w.Write(json)
 }
 
-func getUserByName(username string) (*User, error) {
-    for _, v := range Users {
-        if v.Username == username {
-            return &v, nil
-        }
-    }
-    return nil, errors.New("User doesn't exist")
-}
-
-func createToken(user *User) string {
-    token := jwt.New(jwt.SigningMethodHS256)
-    token.Claims["userid"] = user.ID
-    token.Claims["exp"] = time.Now().Add(time.Hour * 12).Unix()
-    tokenString, _ := token.SignedString([]byte(signingKey))
-    return tokenString
+func firstPresent(a, b string) string {
+    if a == "" { return b }
+    return a
 }
 
 func init() {
-    flag.IntVar(&port, "port", 5000, "Specify port")
+    flag.StringVar(
+        &port, 
+        "port", 
+        firstPresent(
+            os.Getenv("USERAUTH_PORT"), "5000",
+        ), 
+        "Specify port",
+    )
+    flag.StringVar(
+        &adminUser, 
+        "adminUser", 
+        firstPresent(
+            os.Getenv("USERAUTH_ADMINUSER"), "admin",
+        ), 
+        "Specify admin username",
+    )
+    flag.StringVar(
+        &adminPass, 
+        "adminPass", 
+        firstPresent(
+            os.Getenv("USERAUTH_ADMINPASS"), "admin",
+        ), 
+        "Specify admin password",
+    )
+    flag.StringVar(
+        &signingKey, 
+        "signingKey", 
+        firstPresent(
+            os.Getenv("USERAUTH_SIGNINGKEY"), "secretkey",
+        ), 
+        "Specify user token signing key",
+    )
     flag.Parse()
-    fmt.Println("Running on port:", port)
 }
 
 func main() {
-    http.HandleFunc("/login", handleLogin)
-    http.HandleFunc("/auth", handleAuth)
+    app := App{}
+    app.userbase = users.Init()
+    app.userbase.SetSigningKey("ialjfslkjaf9u909fj")
+    app.userbase.Register("admin", "limak")
+    // http.HandleFunc("/register", handleRegister)
+    http.HandleFunc("/login", app.handleLogin)
+    http.HandleFunc("/auth", app.handleAuth)
+    log.Println("Running on port:", port)
     err := http.ListenAndServe(fmt.Sprintf(":%v", port), nil)
     if err != nil {
         log.Fatal("ListenAndServe: ", err)
