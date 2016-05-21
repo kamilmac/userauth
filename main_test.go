@@ -23,21 +23,21 @@ func TestMain(t *testing.T) {
 	tests := &Tests{
         {
             description:        "Invalid user login",
-            payload:            "{\"username\":\"adm1n\",\"password\":\"admin\"}",
+            payload:            `{"username":"adm1n","password":"admin"}`,
             url:                "http://localhost:5000/api/v1/login",
-            expectedBody:       "{\"status\":\"error\",\"message\":\"Login failed\",\"data\":{\"token\":\"\"}}",
+            expectedBody:       `{"status":"error","message":"Login failed","data":{"token":""}}`,
         },
         {
             description:        "Default admin login",
-            payload:            "{\"username\":\"admin\",\"password\":\"admin\"}",
+            payload:            `{"username":"admin","password":"admin"}`,
             url:                "http://localhost:5000/api/v1/login",
-            expectedBody:       "{\"status\":\"success\",\"message\":\"\",\"data\":{\"token\":\"[0-9A-Za-z._-]+\"}}",
+            expectedBody:       `{"status":"success","message":"","data":{"token":"[0-9A-Za-z._-]+"}}`,
         },
         {
             description:        "Auth",
-            payload:            "{\"token\":\"asf98jjasfj\"}",
+            payload:            `{"token":"asf98jjasfj"}`,
             url:                "http://localhost:5000/api/v1/auth",
-            expectedBody:       "{\"status\":\"error\",\"message\":\"Login failed\",\"data\":{\"token\":\"\"}}",
+            expectedBody:       `{"status":"error","message":"Login failed","data":{"token":""}}`,
         },
 	}
 	for _,test  := range *tests {
