@@ -6,8 +6,9 @@ import (
     "encoding/json"
     "log"
     "flag"
-    "github.com/kamilmac/userauth/users"
     "os"
+    
+    "github.com/kamilmac/userauth/users"
 )
 
 var (
@@ -53,7 +54,7 @@ type AuthRes struct {
     Data            AuthData    `json:"data"`
 }
 
-func (app *App) handleLogin(w http.ResponseWriter, r *http.Request) {
+func (app *App) HandleLogin(w http.ResponseWriter, r *http.Request) {
     var (
         res LoginRes
         req LoginReq
@@ -77,7 +78,7 @@ func (app *App) handleLogin(w http.ResponseWriter, r *http.Request) {
     w.Write(json)
 }
 
-func (app *App) handleAuth(w http.ResponseWriter, r *http.Request) {
+func (app *App) HandleAuth(w http.ResponseWriter, r *http.Request) {
     var (
         res AuthRes
         req AuthReq
@@ -148,8 +149,8 @@ func main() {
     app.userbase.SetSigningKey(signingKey)
     app.userbase.Register(adminUser, adminPass)
     // http.HandleFunc("/register", handleRegister)
-    http.HandleFunc("/api/v1/login", app.handleLogin)
-    http.HandleFunc("/api/v1/auth", app.handleAuth)
+    http.HandleFunc("/api/v1/login", app.HandleLogin)
+    http.HandleFunc("/api/v1/auth", app.HandleAuth)
     log.Println("Running on port:", port)
     err := http.ListenAndServe(fmt.Sprintf(":%v", port), nil)
     if err != nil {
