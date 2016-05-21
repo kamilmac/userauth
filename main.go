@@ -112,7 +112,7 @@ func init() {
         &port, 
         "port", 
         firstPresent(
-            os.Getenv("USERAUTH_PORT"), "5000",
+            os.Getenv("CFG_USERAUTH_PORT"), "5000",
         ), 
         "Specify port",
     )
@@ -120,7 +120,7 @@ func init() {
         &adminUser, 
         "adminUser", 
         firstPresent(
-            os.Getenv("USERAUTH_ADMINUSER"), "admin",
+            os.Getenv("CFG_USERAUTH_ADMINUSER"), "admin",
         ), 
         "Specify admin username",
     )
@@ -128,7 +128,7 @@ func init() {
         &adminPass, 
         "adminPass", 
         firstPresent(
-            os.Getenv("USERAUTH_ADMINPASS"), "admin",
+            os.Getenv("CFG_USERAUTH_ADMINPASS"), "admin",
         ), 
         "Specify admin password",
     )
@@ -136,7 +136,7 @@ func init() {
         &signingKey, 
         "signingKey", 
         firstPresent(
-            os.Getenv("USERAUTH_SIGNINGKEY"), "secretkey",
+            os.Getenv("CFG_USERAUTH_SIGNINGKEY"), "secretkey",
         ), 
         "Specify user token signing key",
     )

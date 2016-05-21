@@ -12,7 +12,7 @@
 
 ### Flags || Env_vars || defaults
     -port, -adminUser, -adminPass, -signingKey
-    USERAUTH_PORT|_ADMINUSER|_ADMINPASS|_SIGNINGKEY
+    CFG_USERAUTH_PORT|_ADMINUSER|_ADMINPASS|_SIGNINGKEY
     Defaults: 5000, admin, admin, secretkey 
 
 Run "go test" while running main package to test api calls
