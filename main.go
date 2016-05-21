@@ -73,6 +73,7 @@ func (app *App) handleLogin(w http.ResponseWriter, r *http.Request) {
         }
     }
     json, _ := json.Marshal(res)
+    w.Header().Set("Content-Type", "application/json")
     w.Write(json)
 }
 
@@ -96,6 +97,7 @@ func (app *App) handleAuth(w http.ResponseWriter, r *http.Request) {
         }
     }
     json, _ := json.Marshal(res)
+    w.Header().Set("Content-Type", "application/json")
     w.Write(json)
 }
 
