@@ -1,0 +1,54 @@
+{
+    "apiVersion": "v1",
+    "kind": "ReplicationController",
+    "metadata": {
+        "name": "userauth-controller",
+        "labels": {
+            "name": "userauth"
+        }
+    },
+    "spec": {
+        "replicas": 1,
+        "template": {
+            "metadata": {
+                "labels": {
+                    "name": "userauth"
+                }
+            },
+            "spec": {
+                "containers": [
+                    {
+                        "image": "gcr.io/polished-vault-462/userauth:v1",
+                        "name": "userauth",
+                        "env": [
+                            {
+                                "name": "CFG_USERAUTH_SIGNINGKEY",
+                                "valueFrom": {
+                                    "secretKeyRef": {
+                                        "name": "sesame",
+                                        "key": "userauthsigningkey"
+                                    }
+                                }
+                            },
+                            {
+                                "name": "CFG_USERAUTH_ADMINPASS",
+                                "valueFrom": {
+                                    "secretKeyRef": {
+                                        "name": "sesame",
+                                        "key": "userauthadminpass"
+                                    }
+                                }
+                            }
+                        ],
+                        "ports": [
+                            {
+                                "containerPort": 5000,
+                                "name": ""
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+    }
+}

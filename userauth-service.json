@@ -1,0 +1,23 @@
+{
+  "apiVersion": "v1",
+  "kind": "Service",
+  "metadata": {
+    "name": "userauth",
+    "labels": {
+      "name": "userauth"
+    }
+  },
+  "spec": {
+    "type": "LoadBalancer",
+    "ports": [
+      {
+        "port": 80,
+        "targetPort": 5000,
+        "protocol": "TCP"
+      }
+    ],
+    "selector": {
+      "name": "userauth"
+    }
+  }
+}
