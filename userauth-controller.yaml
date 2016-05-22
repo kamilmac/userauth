@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ReplicationController
+metadata:
+ name: userauth-controller
+ labels:
+   name: userauth
+spec:
+ replicas: 2
+ template:
+   metadata:
+     labels:
+       name: userauth
+   spec:
+     containers:
+     - image: gcr.io/polished-vault-462/userauth
+       name: userauth
+       ports:
+       - containerPort: 5000
+         name: http-server
