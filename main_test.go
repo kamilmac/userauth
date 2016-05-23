@@ -37,7 +37,7 @@ func TestMain(t *testing.T) {
             description:        "Auth",
             payload:            `{"token":"asf98jjasfj"}`,
             url:                "http://localhost:5000/api/v1/auth",
-            expectedBody:       `{"status":"error","message":"Login failed","data":{"token":""}}`,
+            expectedBody:       `{"status":"error","message":"Login failed"}`,
         },
 	}
 	for _,test  := range *tests {

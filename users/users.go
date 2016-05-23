@@ -20,7 +20,7 @@ type Users map[string]*user
 func (u *user) grantToken() string {
     token := jwt.New(jwt.SigningMethodHS256)
     token.Claims["username"] = u.username
-    token.Claims["exp"] = time.Now().Add(time.Hour * 12).Unix()
+    token.Claims["exp"] = time.Now().Add(time.Hour * 1).Unix()
     tokenString, _ := token.SignedString([]byte(signingKey))
     u.token = tokenString
     u.loggedIn = true
@@ -55,24 +55,25 @@ func (u *Users) Login(username, password string) (bool, string) {
     return true, (*u)[username].grantToken() 
 }
 
-func (u *Users) Auth(token string) (bool, string) {
+func (u *Users) Auth(token string) bool {
     tokenParsed, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
         return []byte(signingKey), nil
     })
     if err != nil {
-        return false, ""
+        return false
     }
     tokenUser := tokenParsed.Claims["username"]
     username := fmt.Sprintf("%v", tokenUser)
     if _, ok := tokenParsed.Method.(*jwt.SigningMethodHMAC); !ok {
         (*u)[username].loggedIn = false
-        return false, ""
+        return false
     } 
     if !tokenParsed.Valid {
         (*u)[username].loggedIn = false
-        return false, ""
+        return false
     }
-    return true, (*u)[username].grantToken() 
+    tokenParsed.Claims["exp"] = time.Now().Add(time.Hour * 1).Unix()
+    return true
 }
 
 func Init() *Users {
