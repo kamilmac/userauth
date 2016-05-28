@@ -47,6 +47,7 @@ type AuthReq struct {
 
 type AuthRes struct {
     Response
+    Username        string      `json:"username"`
 }
 
 func (app *App) HandleLogin(w http.ResponseWriter, r *http.Request) {
@@ -84,11 +85,12 @@ func (app *App) HandleAuth(w http.ResponseWriter, r *http.Request) {
         res.Status = "error"
         res.Message = "Json req decoding error"
     } else {
-        if ok := app.userbase.Auth(req.Token); !ok {
+        if ok, username := app.userbase.Auth(req.Token); !ok {
             res.Status = "error"
             res.Message = "Login failed"
         } else {
             res.Status = "success"
+            res.Username = username
         }
     }
     json, _ := json.Marshal(res)

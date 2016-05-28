@@ -55,25 +55,25 @@ func (u *Users) Login(username, password string) (bool, string) {
     return true, (*u)[username].grantToken() 
 }
 
-func (u *Users) Auth(token string) bool {
+func (u *Users) Auth(token string) (bool, string) {
     tokenParsed, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
         return []byte(signingKey), nil
     })
     if err != nil {
-        return false
+        return false, ""
     }
     tokenUser := tokenParsed.Claims["username"]
     username := fmt.Sprintf("%v", tokenUser)
     if _, ok := tokenParsed.Method.(*jwt.SigningMethodHMAC); !ok {
         (*u)[username].loggedIn = false
-        return false
+        return false, ""
     } 
     if !tokenParsed.Valid {
         (*u)[username].loggedIn = false
-        return false
+        return false, ""
     }
     tokenParsed.Claims["exp"] = time.Now().Add(time.Hour * 1).Unix()
-    return true
+    return true, (*u)[username].username
 }
 
 func Init() *Users {
